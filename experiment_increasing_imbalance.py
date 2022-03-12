@@ -27,22 +27,23 @@ if __name__ == "__main__":
     opts.validation_split = (opts.validation_split == 'true')
     opts.classes = tuple([int(x) for x in opts.classes.split(",")])
     opts.imbalance_ratio = tuple([float(x) for x in opts.imbalance_ratio.split(",")])
+    imbalance_ratios = [" ", 0.001, 0.005, 0.01, 0.02, 0.05, 0.1]
     experiment_results = []
-    CNN_width_experiments = [" ", 4, 8, 16, 32, 64]
+    opts.CNN_channels = 32
+
     modes = ["standard", "reweight_sampling", "discard", "reweight_loss"]
 
     for idx, mode in enumerate(modes):
         experiment_results.append([mode])
-        for CNN_channels in CNN_width_experiments[1:]:
-            opts.mode = mode
-            opts.CNN_channels = CNN_channels
+        for imbalance_ratio in imbalance_ratios[1:]:
+            opts.imbalance_ratio = (0.5-imbalance_ratio, imbalance_ratio, imbalance_ratio, 0.5-imbalance_ratio)
             result = run(opts)
             print(result)
             experiment_results[idx].append(result)
-    print(CNN_width_experiments)
+    print(imbalance_ratios)
     print(experiment_results)
-    with open('model_size_results.csv', 'w') as f:
+    with open('imbalance_ratio_results.csv', 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(CNN_width_experiments)
+        writer.writerow(imbalance_ratios)
         for experiment_result in experiment_results:
             writer.writerow(experiment_result)
