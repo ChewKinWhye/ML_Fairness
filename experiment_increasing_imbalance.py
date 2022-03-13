@@ -27,7 +27,7 @@ if __name__ == "__main__":
     opts.validation_split = (opts.validation_split == 'true')
     opts.classes = tuple([int(x) for x in opts.classes.split(",")])
     opts.imbalance_ratio = tuple([float(x) for x in opts.imbalance_ratio.split(",")])
-    imbalance_ratios = [" ", 0.001, 0.005, 0.01, 0.02, 0.05, 0.1]
+    imbalance_ratios = [" ", 0.01, 0.02, 0.05, 0.1]
     experiment_results = []
     opts.CNN_channels = 32
 
