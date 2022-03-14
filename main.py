@@ -4,7 +4,7 @@ from train import train_model
 from evaluate import calculate_group_accuracies
 import torch
 import argparse
-from model import Learner
+from model import Learner, LoadLearner
 
 '''
 python main.py --num_repeat 1 --dataset_name FashionMNIST --classes 2,4 --imbalance_ratio 0.45,0.05,0.05,0.45 --learning_rate 1e-2 --training_epochs 10 --batch_size 8 --weight_decay 1e-6 --CNN_channels 8 --mode standard
@@ -40,7 +40,10 @@ def run(opts):
         x_train, y_train, train_color_labels, x_test, y_test, test_color_labels = \
             load_data(dataset_path, opts.dataset_name, colors, opts.color_intensity, opts.imbalance_ratio, opts.to_save_dataset, opts.classes)
         # Model
-        net = Learner(config)
+        if opts.maml == "maml":
+            net = LoadLearner(config)
+        else:
+            net = Learner(config)
         # net = Simple_CNN(num_classes=2, width=opts.CNN_channels)
         # Train
         net = net.to(device)
@@ -87,6 +90,7 @@ if __name__ == "__main__":
                         help='What mode to train model, can be [standard, reweight_sampling, discard, reweight_loss]',
                         type=str, default="reweight_loss")
     parser.add_argument('--mode_grouping', help='How to group the data points, color or both', type=str, default="both")
+    parser.add_argument('--maml', help='Whether to use maml, maml or none', type=str, default="none")
 
     opts = parser.parse_args()
     opts.to_save_dataset = (opts.to_save_dataset == 'true')
