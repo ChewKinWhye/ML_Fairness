@@ -18,11 +18,13 @@ if __name__ == "__main__":
     parser.add_argument('--training_epochs', help='Number of training epochs', type=int, default=100)
     parser.add_argument('--batch_size', help='Training batch size', type=int, default=8)
     parser.add_argument('--weight_decay', help='Weight decay to use', type=float, default=1e-5)
-    parser.add_argument('--CNN_channels', help='Number of channels for CNN first layer', type=int, default=16)
+    parser.add_argument('--CNN_channels', help='Number of channels for CNN first layer', type=int, default=4)
     parser.add_argument('--colors', help="What colors to color the image", type=str, default="blue,green")
     parser.add_argument('--mode',
                         help='What mode to train model, can be [standard, reweight_sampling, discard, reweight_loss]',
                         type=str, default="standard")
+    parser.add_argument('--mode_grouping', help='How to group the data points, color or both', type=str, default="both")
+
     opts = parser.parse_args()
     opts.to_save_dataset = (opts.to_save_dataset == 'true')
     opts.validation_split = (opts.validation_split == 'true')

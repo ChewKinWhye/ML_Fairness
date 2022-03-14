@@ -23,6 +23,8 @@ if __name__ == "__main__":
     parser.add_argument('--mode',
                         help='What mode to train model, can be [standard, reweight_sampling, discard, reweight_loss]',
                         type=str, default="standard")
+    parser.add_argument('--mode_grouping', help='How to group the data points, color or both', type=str, default="both")
+
     opts = parser.parse_args()
     opts.to_save_dataset = (opts.to_save_dataset == 'true')
     opts.validation_split = (opts.validation_split == 'true')
