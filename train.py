@@ -5,35 +5,69 @@ from evaluate import calculate_group_accuracies
 import numpy as np
 from sklearn.model_selection import train_test_split
 import copy
-
+from dataset import obtain_color_idxs, obtain_class_color_idxs
 # Train model
 
-def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr, max_epochs, bs, mode, validation_split, weight_decay):
-    if validation_split:
-        x_train, x_val, y_train, y_val, train_color_labels, val_color_labels = train_test_split(x_train, y_train, train_color_labels, test_size=0.2, random_state=42)
+def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr, max_epochs, bs, mode, mode_grouping, validation_split, weight_decay):
     patience = 10
     optimizer = torch.optim.SGD(net.parameters(), lr=lr, weight_decay=weight_decay)
-    color_0_idx = np.where((train_color_labels == 0))
-    color_1_idx = np.where((train_color_labels == 1))
-    if mode == "reweight_loss":
-        class_weights = torch.FloatTensor([1/len(color_0_idx), 1/len(color_1_idx)]).to(device)
-        criterion = nn.CrossEntropyLoss(weight=class_weights)
-    else:
-        criterion = nn.CrossEntropyLoss()
-    if mode == 'reweight_sampling':
-        reweight_distribution = np.zeros(len(x_train))
-        reweight_distribution[color_0_idx] = (0.5 / len(color_0_idx[0]))
-        reweight_distribution[color_1_idx] = (0.5 / len(color_1_idx[0]))
+    criterion = nn.CrossEntropyLoss(reduction='none')
     if mode == 'discard':
-        # Discard the samples from the majority group
-        if len(color_0_idx[0]) > len(color_1_idx[0]):
-            x_train = np.delete(x_train, color_0_idx[0][len(color_1_idx[0]):], 0)
-            y_train = np.delete(y_train, color_0_idx[0][len(color_1_idx[0]):], 0)
-            train_color_labels = np.delete(train_color_labels, color_0_idx[0][len(color_1_idx[0]):], 0)
+        if mode_grouping == "color":
+            color_0_idx, color_1_idx = obtain_color_idxs(train_color_labels)
+            min_size = min(len(color_0_idx[0]), len(color_1_idx[0]))
+            delete_indxs = np.array(list(color_0_idx[0][min_size:]) + list(color_1_idx[0][min_size:]))
         else:
-            x_train = np.delete(x_train, color_1_idx[0][len(color_0_idx[0]):], 0)
-            y_train = np.delete(y_train, color_1_idx[0][len(color_0_idx[0]):], 0)
-            train_color_labels = np.delete(train_color_labels, color_1_idx[0][len(color_0_idx[0]):], 0)
+            class_0_color_0_idx, class_0_color_1_idx, class_1_color_0_idx, class_1_color_1_idx = obtain_class_color_idxs(y_train, train_color_labels)
+            min_size = min(len(class_0_color_0_idx[0]), len(class_0_color_1_idx[0]),
+                           len(class_1_color_0_idx[0]), len(class_1_color_1_idx[0]))
+            delete_indxs = np.array(list(class_0_color_0_idx[0][min_size:]) + list(class_0_color_1_idx[0][min_size:]) +
+                                    list(class_1_color_0_idx[0][min_size:]) + list(class_1_color_1_idx[0][min_size:]))
+        x_train = np.delete(x_train, delete_indxs, 0)
+        y_train = np.delete(y_train, delete_indxs, 0)
+        train_color_labels = np.delete(train_color_labels, delete_indxs, 0)
+    if mode_grouping == "color":
+        color_0_idx, color_1_idx = obtain_color_idxs(train_color_labels)
+        train_reweight_loss = np.zeros(len(x_train))
+        train_reweight_loss[color_0_idx] = (len(x_train) * 0.5) / len(color_0_idx[0])
+        train_reweight_loss[color_1_idx] = (len(x_train) * 0.5) / len(color_1_idx[0])
+    else:
+        class_0_color_0_idx, class_0_color_1_idx, class_1_color_0_idx, class_1_color_1_idx = obtain_class_color_idxs(
+            y_train, train_color_labels)
+        train_reweight_loss = np.zeros(len(x_train))
+
+        train_reweight_loss[class_0_color_0_idx] = (len(x_train) * 0.25) / len(class_0_color_0_idx[0])
+        train_reweight_loss[class_0_color_1_idx] = (len(x_train) * 0.25) / len(class_0_color_1_idx[0])
+        train_reweight_loss[class_1_color_0_idx] = (len(x_train) * 0.25) / len(class_1_color_0_idx[0])
+        train_reweight_loss[class_1_color_1_idx] = (len(x_train) * 0.25) / len(class_1_color_1_idx[0])
+
+    if validation_split:
+        x_train, x_val, y_train, y_val, train_color_labels, val_color_labels, train_reweight_loss, val_reweight_loss = train_test_split(x_train, y_train, train_color_labels, train_reweight_loss, test_size=0.2, random_state=42)
+        val_reweight_distribution = np.zeros(len(x_val))
+        if mode_grouping == "color":
+            val_color_0_idx, val_color_1_idx = obtain_color_idxs(val_color_labels)
+            val_reweight_distribution[val_color_0_idx] = (0.5 / len(val_color_0_idx[0]))
+            val_reweight_distribution[val_color_1_idx] = (0.5 / len(val_color_1_idx[0]))
+        else:
+            val_class_0_color_0_idx, val_class_0_color_1_idx, val_class_1_color_0_idx, val_class_1_color_1_idx = obtain_class_color_idxs(
+                y_val, val_color_labels)
+            val_reweight_distribution[val_class_0_color_0_idx] = (0.25 / len(val_class_0_color_0_idx[0]))
+            val_reweight_distribution[val_class_0_color_1_idx] = (0.25 / len(val_class_0_color_1_idx[0]))
+            val_reweight_distribution[val_class_1_color_0_idx] = (0.25 / len(val_class_1_color_0_idx[0]))
+            val_reweight_distribution[val_class_1_color_1_idx] = (0.25 / len(val_class_1_color_1_idx[0]))
+    train_reweight_distribution = np.zeros(len(x_train))
+    if mode_grouping == "color":
+        train_color_0_idx, train_color_1_idx = obtain_color_idxs(train_color_labels)
+        train_reweight_distribution[train_color_0_idx] = (0.5 / len(train_color_0_idx[0]))
+        train_reweight_distribution[train_color_1_idx] = (0.5 / len(train_color_1_idx[0]))
+    else:
+        train_class_0_color_0_idx, train_class_0_color_1_idx, train_class_1_color_0_idx, train_class_1_color_1_idx = obtain_class_color_idxs(
+            y_train, train_color_labels)
+        train_reweight_distribution[train_class_0_color_0_idx] = (0.25 / len(train_class_0_color_0_idx[0]))
+        train_reweight_distribution[train_class_0_color_1_idx] = (0.25 / len(train_class_0_color_1_idx[0]))
+        train_reweight_distribution[train_class_1_color_0_idx] = (0.25 / len(train_class_1_color_0_idx[0]))
+        train_reweight_distribution[train_class_1_color_1_idx] = (0.25 / len(train_class_1_color_1_idx[0]))
+
     lowest_val_loss = float('inf')
     patience_steps = 0
     best_params = copy.deepcopy(net.state_dict())
@@ -42,10 +76,10 @@ def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr
         training_loss, training_acc, num_train_batches = 0, 0, 0
         shuffled_indices = torch.randperm(len(x_train))
         net.train()
-        for idx in range(0, len(x_train), bs):
+        for idx in range(0, len(x_train)-bs, bs):
             optimizer.zero_grad()
             if mode == 'reweight_sampling':
-                batch_indices = np.random.choice(np.arange(len(x_train)), bs, replace=False, p=reweight_distribution)
+                batch_indices = np.random.choice(np.arange(len(x_train)), bs, replace=False, p=train_reweight_distribution)
             elif mode == 'standard' or mode == 'discard' or mode == 'reweight_loss':
                 batch_indices = shuffled_indices[idx:idx+bs]
             minibatch_data = x_train[batch_indices]
@@ -56,6 +90,10 @@ def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr
             inputs.requires_grad_()
             scores = net(inputs)
             loss = criterion(scores, minibatch_label)
+            if mode == "reweight_loss":
+                loss = torch.dot(loss, torch.tensor(train_reweight_loss[batch_indices]).float().to(device)) / bs
+            else:
+                loss = torch.mean(loss)
             loss.backward()
             optimizer.step()
             training_loss += loss.detach().item()
@@ -64,15 +102,25 @@ def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr
         if validation_split:
             net.eval()
             val_loss, val_acc, num_val_batches = 0, 0, 0
+            shuffled_indices = torch.randperm(len(x_val))
             with torch.no_grad():
-                for idx in range(0, len(x_val), bs):
-                    minibatch_data = x_val[idx:idx+bs]
-                    minibatch_label = y_val[idx:idx+bs]
+                for idx in range(0, len(x_val)-bs, bs):
+                    if mode == 'reweight_sampling':
+                        batch_indices = np.random.choice(np.arange(len(x_val)), bs, replace=False,
+                                                         p=val_reweight_distribution)
+                    elif mode == 'standard' or mode == 'discard' or mode == 'reweight_loss':
+                        batch_indices = shuffled_indices[idx:idx + bs]
+                    minibatch_data = x_val[batch_indices]
+                    minibatch_label = y_val[batch_indices]
                     minibatch_data = minibatch_data.to(device)
                     minibatch_label = minibatch_label.to(device)
                     inputs = (minibatch_data - mean) / std
-                    scores = net(inputs)
+                    scores = net(inputs, bn_training=False)
                     loss = criterion(scores, minibatch_label)
+                    if mode == "reweight_loss":
+                        loss = torch.dot(loss, torch.tensor(val_reweight_loss[batch_indices]).float().to(device)) / bs
+                    else:
+                        loss = torch.mean(loss)
                     val_loss += loss.detach().item()
                     val_acc += torch.sum((torch.max(scores, 1)[1] == minibatch_label).float()).data.item()
                     num_val_batches += 1

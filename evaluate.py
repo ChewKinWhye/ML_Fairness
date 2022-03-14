@@ -16,7 +16,7 @@ def calculate_group_accuracies(net, x, y, color_labels, mean, std, device, bs):
                 minibatch_data = minibatch_data.to(device)
                 minibatch_label = minibatch_label.to(device)
                 inputs = (minibatch_data - mean) / std
-                scores = net(inputs)
+                scores = net(inputs, bn_training=False)
                 group_acc += torch.sum((torch.max(scores, 1)[1] == minibatch_label).float()).data.item()
             group_accuracies.append(group_acc/len(group_idx))
             # print(f'Group: Class {class_label} Color {color_label}, Accuracy: {group_acc/len(group_idx)}')
@@ -32,7 +32,7 @@ def calculate_group_accuracies(net, x, y, color_labels, mean, std, device, bs):
             minibatch_data = minibatch_data.to(device)
             minibatch_label = minibatch_label.to(device)
             inputs = (minibatch_data - mean) / std
-            scores = net(inputs)
+            scores = net(inputs, bn_training=False)
             group_acc += torch.sum((torch.max(scores, 1)[1] == minibatch_label).float()).data.item()
         color_accuracies.append(group_acc/len(group_idx))
     return group_accuracies, color_accuracies

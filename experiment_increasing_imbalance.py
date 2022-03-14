@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', help='Training batch size', type=int, default=8)
     parser.add_argument('--weight_decay', help='Weight decay to use', type=float, default=1e-5)
     parser.add_argument('--CNN_channels', help='Number of channels for CNN first layer', type=int, default=16)
+    parser.add_argument('--colors', help="What colors to color the image", type=str, default="blue,green")
     parser.add_argument('--mode',
                         help='What mode to train model, can be [standard, reweight_sampling, discard, reweight_loss]',
                         type=str, default="standard")
@@ -27,9 +28,9 @@ if __name__ == "__main__":
     opts.validation_split = (opts.validation_split == 'true')
     opts.classes = tuple([int(x) for x in opts.classes.split(",")])
     opts.imbalance_ratio = tuple([float(x) for x in opts.imbalance_ratio.split(",")])
-    imbalance_ratios = [" ", 0.01, 0.02, 0.05, 0.1]
+    imbalance_ratios = [" ", 0.02, 0.05, 0.1, 0.2]
     experiment_results = []
-    opts.CNN_channels = 32
+    opts.CNN_channels = 4
 
     modes = ["standard", "reweight_sampling", "discard", "reweight_loss"]
 

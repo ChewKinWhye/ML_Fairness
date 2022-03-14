@@ -10,6 +10,21 @@ import os
 
 # TODO: Make function callable and add hyperparameters
 
+
+def obtain_class_color_idxs(y_train, train_color_labels):
+    class_0_color_0_idx = np.where((y_train == 0) & (train_color_labels == 0))
+    class_0_color_1_idx = np.where((y_train == 0) & (train_color_labels == 1))
+    class_1_color_0_idx = np.where((y_train == 1) & (train_color_labels == 0))
+    class_1_color_1_idx = np.where((y_train == 1) & (train_color_labels == 1))
+    return class_0_color_0_idx, class_0_color_1_idx, class_1_color_0_idx, class_1_color_1_idx
+
+
+
+def obtain_color_idxs(train_color_labels):
+    color_0_idx = np.where((train_color_labels == 0))
+    color_1_idx = np.where((train_color_labels == 1))
+    return color_0_idx, color_1_idx
+
 # Display torch tensor image
 def display_image(tensor):
     if tensor.size()[0] == 3:
