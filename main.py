@@ -102,9 +102,9 @@ def run(opts):
     worst_group_average_accuracy = ListMean([(i[1] + i[2]) / 2 for i in group_test_accuracies_list])
     worst_group_best_accuracy = max([(i[1] + i[2]) / 2 for i in group_test_accuracies_list])
     worst_group_worst_accuracy = min([(i[1] + i[2]) / 2 for i in group_test_accuracies_list])
-    balanced_group_average_accuracy = ListMean([(i[1] + i[2] + i[3] + i[4]) / 4 for i in group_test_accuracies_list])
-    balanced_group_best_accuracy = max([(i[1] + i[2] + i[3] + i[4]) / 4 for i in group_test_accuracies_list])
-    balanced_group_worst_accuracy = min([(i[1] + i[2] + i[3] + i[4]) / 4 for i in group_test_accuracies_list])
+    balanced_group_average_accuracy = ListMean([(i[0] + i[1] + i[2] + i[3]) / 4 for i in group_test_accuracies_list])
+    balanced_group_best_accuracy = max([(i[0] + i[1] + i[2] + i[3]) / 4 for i in group_test_accuracies_list])
+    balanced_group_worst_accuracy = min([(i[0] + i[1] + i[2] + i[3]) / 4 for i in group_test_accuracies_list])
 
     return worst_group_average_accuracy, worst_group_best_accuracy, worst_group_worst_accuracy, balanced_group_average_accuracy, balanced_group_best_accuracy, balanced_group_worst_accuracy
 
