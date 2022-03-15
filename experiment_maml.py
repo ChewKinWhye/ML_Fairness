@@ -42,7 +42,7 @@ if __name__ == "__main__":
             experiment_results[idx].append(result)
     print(modes)
     print(experiment_results)
-    with open('model_size_results.csv', 'w') as f:
+    with open('maml_results.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerow(modes)
         for experiment_result in experiment_results:
