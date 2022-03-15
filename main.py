@@ -16,7 +16,7 @@ python main.py --num_repeat 1 --dataset_name FashionMNIST --classes 2,4 --imbala
 def parse_args():
     parser = argparse.ArgumentParser()
     # Experiment Parameters
-    parser.add_argument('--num_repeat', help='Number of times to repeat experiment', type=int, default=1)
+    parser.add_argument('--num_repeat', help='Number of times to repeat experiment', type=int, default=5)
 
     # Data parameters
     parser.add_argument('--dataset_name', help='Which dataset to use, MNIST or FashionMNIST', type=str, default="MNIST")
