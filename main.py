@@ -43,6 +43,7 @@ def parse_args():
     parser.add_argument('--mode_grouping', help='How to group the data points, color or both', type=str, default="both")
     parser.add_argument('--maml', help='Whether to use maml, maml or none', type=str, default="none")
     parser.add_argument('--results_file', help='Where to save results', type=str, default="imbalance_ratio_results.csv")
+    parser.add_argument('--worst_group', help='Which groups are the worst groups', type=str, default="1,2")
 
     opts = parser.parse_args()
     opts.to_save_dataset = (opts.to_save_dataset == 'true')
@@ -100,9 +101,16 @@ def run(opts):
         print('\t Color Test Accuracy=', color_test_accuracies)
         group_test_accuracies_list.append(group_test_accuracies)
         color_test_accuracies_list.append(color_test_accuracies)
-    worst_group_average_accuracy = ListMean([(i[1] + i[2]) / 2 for i in group_test_accuracies_list])
-    worst_group_best_accuracy = max([(i[1] + i[2]) / 2 for i in group_test_accuracies_list])
-    worst_group_worst_accuracy = min([(i[1] + i[2]) / 2 for i in group_test_accuracies_list])
+    worst_groups = [int(i) for i in opts.worst_group.split(",")]
+    if len(worst_groups) == 2:
+        worst_group_average_accuracy = ListMean([(i[worst_groups[0]] + i[worst_groups[1]]) / 2 for i in group_test_accuracies_list])
+        worst_group_best_accuracy = max([(i[worst_groups[0]] + i[worst_groups[1]]) / 2 for i in group_test_accuracies_list])
+        worst_group_worst_accuracy = min([(i[worst_groups[0]] + i[worst_groups[1]]) / 2 for i in group_test_accuracies_list])
+    elif len(worst_groups) == 1:
+        worst_group_average_accuracy = ListMean([i[worst_groups[0]] for i in group_test_accuracies_list])
+        worst_group_best_accuracy = max([i[worst_groups[0]] for i in group_test_accuracies_list])
+        worst_group_worst_accuracy = min([i[worst_groups[0]] for i in group_test_accuracies_list])
+
     balanced_group_average_accuracy = ListMean([(i[0] + i[1] + i[2] + i[3]) / 4 for i in group_test_accuracies_list])
     balanced_group_best_accuracy = max([(i[0] + i[1] + i[2] + i[3]) / 4 for i in group_test_accuracies_list])
     balanced_group_worst_accuracy = min([(i[0] + i[1] + i[2] + i[3]) / 4 for i in group_test_accuracies_list])
