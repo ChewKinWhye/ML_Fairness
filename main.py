@@ -39,7 +39,7 @@ def parse_args():
     parser.add_argument('--CNN_channels', help='Number of channels for CNN first layer', type=int, default=4)
     parser.add_argument('--mode',
                         help='What mode to train model, can be [standard, reweight_sampling, discard, reweight_loss]',
-                        type=str, default="discard")
+                        type=str, default="reweight_sampling")
     parser.add_argument('--mode_grouping', help='How to group the data points, color or both', type=str, default="both")
     parser.add_argument('--maml', help='Whether to use maml, maml or none', type=str, default="none")
 
@@ -55,16 +55,16 @@ def run(opts):
     config = [
         ('conv2d', [opts.CNN_channels, 3, 3, 3, 2, 0]),
         ('relu', [True]),
-        ('bn', [opts.CNN_channels]),
+        # ('bn', [opts.CNN_channels]),
         ('conv2d', [opts.CNN_channels, opts.CNN_channels, 3, 3, 2, 0]),
         ('relu', [True]),
-        ('bn', [opts.CNN_channels]),
+        # ('bn', [opts.CNN_channels]),
         ('conv2d', [opts.CNN_channels, opts.CNN_channels, 3, 3, 2, 0]),
         ('relu', [True]),
-        ('bn', [opts.CNN_channels]),
+        # ('bn', [opts.CNN_channels]),
         ('conv2d', [opts.CNN_channels, opts.CNN_channels, 2, 2, 1, 0]),
         ('relu', [True]),
-        ('bn', [opts.CNN_channels]),
+        # ('bn', [opts.CNN_channels]),
         ('flatten', []),
         ('linear', [2, opts.CNN_channels])
     ]

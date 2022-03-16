@@ -85,7 +85,7 @@ def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr
         training_loss, training_acc, num_train_batches = 0, 0, 0
         shuffled_indices = torch.randperm(len(x_train))
         net.train()
-        for idx in range(0, len(x_train)-bs, bs):
+        for idx in range(0, len(x_train), bs):
             optimizer.zero_grad()
             batch_indices = shuffled_indices[idx:idx+bs]
             minibatch_data = x_train[batch_indices]
@@ -110,7 +110,7 @@ def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr
             val_loss, val_acc, num_val_batches = 0, 0, 0
             shuffled_indices = torch.randperm(len(x_val))
             with torch.no_grad():
-                for idx in range(0, len(x_val)-bs, bs):
+                for idx in range(0, len(x_val), bs):
                     batch_indices = shuffled_indices[idx:idx + bs]
                     minibatch_data = x_val[batch_indices]
                     minibatch_label = y_val[batch_indices]
