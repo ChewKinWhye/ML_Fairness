@@ -18,7 +18,7 @@ if __name__ == "__main__":
             experiment_results[idx].append(result)
     print(CNN_width_experiments)
     print(experiment_results)
-    with open('model_size_results.csv', 'w') as f:
+    with open(opts.results_file, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(CNN_width_experiments)
         for experiment_result in experiment_results:

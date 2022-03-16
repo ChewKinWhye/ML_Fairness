@@ -42,6 +42,7 @@ def parse_args():
                         type=str, default="reweight_sampling")
     parser.add_argument('--mode_grouping', help='How to group the data points, color or both', type=str, default="both")
     parser.add_argument('--maml', help='Whether to use maml, maml or none', type=str, default="none")
+    parser.add_argument('--results_file', help='Where to save results', type=str, default="imbalance_ratio_results.csv")
 
     opts = parser.parse_args()
     opts.to_save_dataset = (opts.to_save_dataset == 'true')
