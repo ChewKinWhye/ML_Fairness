@@ -12,6 +12,15 @@ np=$(cat ${PBS_NODEFILE} | wc -l);
 image="/app1/common/singularity-img/3.0.0/pytorch_1.9_cuda_11.3.0-ubuntu20.04-py38-ngc_21.04.simg"
 
 singularity exec $image bash << EOF > stdout.$PBS_JOBID 2> stderr.$PBS_JOBID
-python experiment_increasing_imbalance.py
+
+python experiment_increasing_model_size_Percy.py --results_file experiment_increasing_model_size_percy.csv
+python experiment_increasing_imbalance_Percy.py --results_file experiment_increasing_imbalance_percy.csv
+
+python experiment_increasing_model_size_LinJun.py --results_file experiment_increasing_model_size_linjun_both_group.csv
+python experiment_increasing_imbalance_LinJun.py --results_file experiment_increasing_imbalance_linjun_both_group.csv
+
+python experiment_increasing_model_size_LinJun.py --mode_grouping color --results_file experiment_increasing_model_size_linjun_color_group.csv
+python experiment_increasing_imbalance_Linjun.py --mode_grouping color --results_file experiment_increasing_imbalance_linjun_color_group.csv
+
 
 EOF
