@@ -12,6 +12,7 @@ if __name__ == "__main__":
     for idx, mode in enumerate(modes):
         experiment_results.append([mode])
         for imbalance_ratio in imbalance_ratios[1:]:
+            opts.mode = mode
             opts.imbalance_ratio = (0.5-imbalance_ratio, imbalance_ratio, imbalance_ratio, 0.5-imbalance_ratio)
             result = run(opts)
             print(result)
