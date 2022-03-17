@@ -73,7 +73,7 @@ def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr
         train_reweight_loss[class_0_color_1_idx] = (len(x_train) * 0.25) / len(class_0_color_1_idx[0])
         train_reweight_loss[class_1_color_0_idx] = (len(x_train) * 0.25) / len(class_1_color_0_idx[0])
         train_reweight_loss[class_1_color_1_idx] = (len(x_train) * 0.25) / len(class_1_color_1_idx[0])
-
+    train_reweight_loss = torch.tensor(train_reweight_loss)
     if validation_split:
         x_train, x_val, y_train, y_val, train_color_labels, val_color_labels, train_reweight_loss, val_reweight_loss = train_test_split(x_train, y_train, train_color_labels, train_reweight_loss, test_size=0.2, random_state=42)
 
@@ -97,6 +97,8 @@ def train_model(net, x_train, y_train, train_color_labels, device, mean, std, lr
             scores = net(inputs)
             loss = criterion(scores, minibatch_label)
             if mode == "reweight_loss":
+                print(loss.size())
+                print(train_reweight_loss[batch_indices].size())
                 loss = torch.dot(loss, torch.tensor(train_reweight_loss[batch_indices]).float().to(device)) / bs
             else:
                 loss = torch.mean(loss)

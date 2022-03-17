@@ -39,7 +39,7 @@ def parse_args():
     parser.add_argument('--CNN_channels', help='Number of channels for CNN first layer', type=int, default=4)
     parser.add_argument('--mode',
                         help='What mode to train model, can be [standard, reweight_sampling, discard, reweight_loss]',
-                        type=str, default="reweight_sampling")
+                        type=str, default="reweight_loss")
     parser.add_argument('--mode_grouping', help='How to group the data points, color or both', type=str, default="both")
     parser.add_argument('--maml', help='Whether to use maml, maml or none', type=str, default="none")
     parser.add_argument('--results_file', help='Where to save results', type=str, default="imbalance_ratio_results.csv")
