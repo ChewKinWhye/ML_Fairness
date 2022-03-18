@@ -15,6 +15,7 @@ if __name__ == "__main__":
             opts.mode = mode
             opts.CNN_channels = CNN_channels
             opts.imbalance_ratio = ((1-imbalance_ratio)/3, (1-imbalance_ratio)/3, (1-imbalance_ratio)/3, imbalance_ratio)
+            opts.worst_group = "3"
             result = run(opts)
             print(result)
             experiment_results[idx].append(result)

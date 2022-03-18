@@ -13,7 +13,6 @@ if __name__ == "__main__":
         for CNN_channels in CNN_width_experiments[1:]:
             opts.mode = mode
             opts.CNN_channels = CNN_channels
-            opts.worst_group = "3"
             result = run(opts)
             print(result)
             experiment_results[idx].append(result)

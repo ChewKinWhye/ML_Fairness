@@ -7,7 +7,8 @@ import ast
 if __name__ == "__main__":
     colors = ['b', 'g', 'r', 'c']
     # experiment = "model_size_results"
-    experiment = "imbalance_ratio_results"
+    experiment = "experiment_increasing_model_size_percy"
+    plot = "average"
     data = []
     with open(f"{experiment}.csv") as f:
         read_tsv = csv.reader(f)
@@ -25,8 +26,11 @@ if __name__ == "__main__":
         average_average_group = [float(i[3]) for i in y_total]
         best_average_group = [float(i[4]) for i in y_total]
         worst_average_group = [float(i[5]) for i in y_total]
+        if plot == "average_group":
+            plt.plot(x, average_average_group, color, label=mode)
+        else:
+            plt.plot(x, average_worst_group, color, label=mode)
 
-        plt.plot(x, average_average_group, color, label=mode)
         # plt.fill_between(x, worst_worst_group, best_worst_group, color=color, alpha=0.2)
     plt.xlabel(experiment)
     plt.ylabel('Worst Group Accuracy')
