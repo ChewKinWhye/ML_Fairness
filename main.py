@@ -101,6 +101,7 @@ def run(opts):
         print('\t Color Test Accuracy=', color_test_accuracies)
         group_test_accuracies_list.append(group_test_accuracies)
         color_test_accuracies_list.append(color_test_accuracies)
+
     worst_groups = [int(i) for i in opts.worst_group.split(",")]
     if len(worst_groups) == 2:
         worst_group_average_accuracy = ListMean([(i[worst_groups[0]] + i[worst_groups[1]]) / 2 for i in group_test_accuracies_list])

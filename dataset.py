@@ -145,7 +145,7 @@ def add_color_imbalance(x_train, y_train, colors, color_fractions, color_intensi
 
 
 def load_data(dataset_path, dataset_name, colors, color_intensity, color_fractions, save_modified_dataset, classes):
-    assert sum(list(color_fractions)) == 1
+    # assert sum(list(color_fractions)) == 1
 
     x_train, y_train, x_test, y_test = get_raw_dataset(dataset_name, dataset_path)
     # Shuffle both train and test as color is added by sequential indexing
